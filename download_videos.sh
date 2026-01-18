@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Starting Video Script."
+
 # Assign the first command-line argument to the INPUT_FILE variable.
 INPUT_FILE="$1"
 
@@ -17,14 +19,18 @@ if [[ ! -f "$INPUT_FILE" ]]; then
 fi
 
 # Loop through each line of the CSV file.
-while IFS=, read -r link name
+while IFS=, read -r link name || [[ -n "$link" ]]
 do
   echo "\n\n======== SAVING $name ========"
 
   # Check if both fields are non-empty.
   if [[ -n "$link" && -n "$name" ]]; then
     # Execute the yt-dlp command.
-    yt-dlp -S res,ext:mp4:m4a --recode mp4 "$link" -o "$name"
+    if [[ -n "$name" ]]; then
+      yt-dlp -S res,ext:mp4:m4a --recode mp4 "$link" -o "temp/$name"
+    else
+      yt-dlp -S res,ext:mp4:m4a --recode mp4 "$link" -P "temp"
+    fi
   else
     echo "Skipping an empty or malformed line."
   fi

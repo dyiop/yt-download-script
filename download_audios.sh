@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Starting Audio Script."
+
 # Assign the first command-line argument to the INPUT_FILE variable.
 INPUT_FILE="$1"
 
@@ -17,14 +19,18 @@ if [[ ! -f "$INPUT_FILE" ]]; then
 fi
 
 # Loop through each line of the CSV file.
-while IFS=, read -r link name
+while IFS=, read -r link name || [[ -n "$link" ]]
 do
   echo "======== SAVING $name ========"
 
   # Check if both fields are non-empty.
-  if [[ -n "$link" && -n "$name" ]]; then
+  if [[ -n "$link" ]]; then
     # Execute the yt-dlp command.
-    yt-dlp -x --audio-format mp3 "$link" -o "$name"
+    if [[ -n "$name" ]]; then
+      yt-dlp -x --audio-format mp3 "$link" -o "temp/$name"
+    else
+      yt-dlp -x --audio-format mp3 "$link" -P "temp"
+    fi
   else
     echo "Skipping an empty or malformed line."
   fi
